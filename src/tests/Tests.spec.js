@@ -2,27 +2,27 @@ import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporte
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
 import http from 'k6/http';
 import { check } from 'k6';
-import { Trend } from 'k6/metrics';
+import { Trend, Rate } from 'k6/metrics';
 
-export const getContactsDuration = new Trend('get_contacts', true);
+export const getMkmWebsiteDuration = new Trend('MKM_WEBSITE', true);
+export const successfullRequestsRate = new Rate('SUCCESSFULL_REQUESTS');
 
 export const options = {
   thresholds: {
-    http_req_failed: ['rate<0.01'],
-    http_req_duration: ['avg<100']
+    http_req_failed: ['rate<0.02'],
+    http_req_duration: ['p(95)<5700']
   },
   stages: [
-    { duration: '10s', target: 20 },
-    { duration: '20s', target: 40 },
-    { duration: '30s', target: 60 },
-    { duration: '40s', target: 80 },
-    { duration: '50s', target: 100 },
-    { duration: '120s', target: 120 },
-    { duration: '50s', target: 100 },
-    { duration: '40s', target: 80 },
-    { duration: '30s', target: 60 },
-    { duration: '20s', target: 40 },
-    { duration: '10s', target: 20 }
+    { duration: '15s', target: 10 },
+    { duration: '40s', target: 10 },
+    { duration: '15s', target: 40 },
+    { duration: '60s', target: 40 },
+    { duration: '15s', target: 100 },
+    { duration: '60s', target: 100 },
+    { duration: '15s', target: 200 },
+    { duration: '60s', target: 200 },
+    { duration: '10s', target: 300 },
+    { duration: '10s', target: 300 }
   ]
 };
 
@@ -46,9 +46,10 @@ export default function () {
 
   const res = http.get(`${baseUrl}`, params);
 
-  getContactsDuration.add(res.timings.duration);
+  getMkmWebsiteDuration.add(res.timings.duration);
+  successfullRequestsRate.add(res.status === OK);
 
   check(res, {
-    'GET Contacts - Status 200': () => res.status === OK
+    'MKM WEBSITE - Status 200': () => res.status === OK
   });
 }
