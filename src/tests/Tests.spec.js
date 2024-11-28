@@ -4,8 +4,8 @@ import http from 'k6/http';
 import { check } from 'k6';
 import { Trend, Rate } from 'k6/metrics';
 
-export const getMkmWebsiteDuration = new Trend('MKM_WEBSITE', true);
-export const successfullRequestsRate = new Rate('SUCCESSFULL_REQUESTS');
+export const getMkmWebsiteDuration = new Trend('GET_MKM_WEBSITE', true);
+export const successfullRequestsRate = new Rate('SUCCESSFULL_REQUESTS_RATE');
 
 export const options = {
   thresholds: {
@@ -50,6 +50,6 @@ export default function () {
   successfullRequestsRate.add(res.status === OK);
 
   check(res, {
-    'MKM WEBSITE - Status 200': () => res.status === OK
+    'MKM WEBSITE GET - Status 200': () => res.status === OK
   });
 }
